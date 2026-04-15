@@ -23,7 +23,7 @@ resource "azurerm_kubernetes_cluster" "arc_cluster" {
   }
 
   default_node_pool {
-    name                        = "${var.prefix}nodepool"
+    name                        = "arcnodepool"
     node_count                  = var.node_count
     vm_size                     = var.vm_size
     vnet_subnet_id              = var.nodes_subnet_id
