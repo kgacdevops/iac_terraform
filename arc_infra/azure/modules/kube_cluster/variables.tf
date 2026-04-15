@@ -1,0 +1,10 @@
+variable "prefix" {}
+variable "node_count" {}
+variable "vm_size" {}
+variable "location" {}
+variable "rg_name" {}
+variable "api_server_subnet_id" {}
+variable "nodes_subnet_id" {}
+variable "service_cidr" {}
+variable "dns_service_ip" {}
+variable "vnet_id" {}

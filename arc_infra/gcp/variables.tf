@@ -1,0 +1,11 @@
+variable "project_id" {}
+variable "region_name" {}
+variable "gh_token" {}
+variable "zone_name" {}
+variable "prefix" {}
+variable "cidr_range" {}
+variable "pods_ip_range" {}
+variable "svc_ip_range" {}
+variable "svc_account_mail" {}
+variable "kube_cluster_node_count" {}
+variable "kube_cluster_machine_type" {}

@@ -1,0 +1,9 @@
+variable "vpc_self_link" {}
+variable "subnet_self_link" {}
+variable "zone_name" {}
+variable "prefix" {}
+variable "kube_cluster_node_count" {}
+variable "kube_cluster_machine_type" {}
+variable "svc_account_mail" {}
+variable "gh_token" {}
+variable "project_id" {}
