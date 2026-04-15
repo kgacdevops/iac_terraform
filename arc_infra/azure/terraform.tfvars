@@ -1,6 +1,6 @@
-prefix              = "arc"
-location            = "westus2"
-vm_size             = "standard_d2_v3"
+prefix              = "{PREFIX}"
+location            = "{REGION}"
+vm_size             = "{VM_SIZE}"
 node_count          = 1
 vnet_cidr           = "10.0.0.0/16"
 subnet_api_cidr     = "10.0.2.0/28"
