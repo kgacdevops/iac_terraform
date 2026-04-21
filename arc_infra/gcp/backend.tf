@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "gh-runnter-tfstate"
+    bucket = "{TFSTATE_BUCKET_NAME}"
     prefix = "terraform/state"
   }
 }
