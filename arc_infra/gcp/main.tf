@@ -19,5 +19,6 @@ module "kube_cluster" {
     svc_account_mail            = var.svc_account_mail
     gh_token                    = var.gh_token
     project_id                  = var.project_id
+    svc_account_nodes           = var.svc_account_nodes
     depends_on                  = [ module.network ]
 }
