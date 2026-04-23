@@ -8,3 +8,4 @@ variable "nodes_subnet_id" {}
 variable "service_cidr" {}
 variable "dns_service_ip" {}
 variable "vnet_id" {}
+variable "runner_ip" {}

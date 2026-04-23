@@ -15,7 +15,7 @@ resource "helm_release" "cert_manager" {
 
 resource "kubernetes_namespace_v1" "arc_namespace" {
   metadata {
-    name = "${var.prefix}-runners"
+    name = var.prefix
   }
 }
 
@@ -46,7 +46,7 @@ resource "helm_release" "arc_controller" {
 }
 
 resource "helm_release" "arc_runners" {
-  name       = "${var.prefix}-runner-${var.cloud_provider}"
+  name       = "${var.prefix}-${var.cloud_provider}"
   namespace  = kubernetes_namespace_v1.arc_namespace.metadata[0].name
   repository = "oci://ghcr.io/actions/actions-runner-controller-charts"
   chart      = "gha-runner-scale-set"
