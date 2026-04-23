@@ -27,12 +27,3 @@ module "kube_cluster" {
     dns_service_ip        = var.dns_service_ip
     depends_on            = [ module.network ]
 }
-
-module "install_arc" {
-    source                  = "../arc_install"
-    prefix                  = var.prefix
-    gh_app_id               = var.gh_app_id
-    gh_app_installation_id  = var.gh_app_installation_id
-    github_owner            = var.github_owner
-    cloud_provider          = var.cloud_provider
-}
