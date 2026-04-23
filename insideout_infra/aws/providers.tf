@@ -14,7 +14,7 @@ provider "aws" {
   default_tags {
     tags = {
       ManagedBy   = "Terraform"
-      Project     = "ARC"
+      Project     = "InsideOut"
     }
   }
 }
