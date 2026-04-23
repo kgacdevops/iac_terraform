@@ -6,14 +6,14 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
   version          = "v1.13.0"
 
-  set = {
+  set = [{
     name  = "installCRDs"
     value = "true"
-  }
+  }]
   wait = true
 }
 
-resource "kubernetes_namespace" "arc_namespace" {
+resource "kubernetes_namespace_v1" "arc_namespace" {
   metadata {
     name = "${var.prefix}-runners"
   }
@@ -22,7 +22,7 @@ resource "kubernetes_namespace" "arc_namespace" {
 resource "kubernetes_secret" "github_app_secret" {
   metadata {
     name      = "${var.prefix}-secret"
-    namespace = kubernetes_namespace.arc_namespace.metadata[0].name
+    namespace = kubernetes_namespace_v1.arc_namespace.metadata[0].name
   }
 
   data = {
@@ -47,7 +47,7 @@ resource "helm_release" "arc_controller" {
 
 resource "helm_release" "arc_runners" {
   name       = "${var.prefix}-runner-${var.cloud_provider}"
-  namespace  = kubernetes_namespace.arc_namespace.metadata[0].name
+  namespace  = kubernetes_namespace_v1.arc_namespace.metadata[0].name
   repository = "oci://ghcr.io/actions/actions-runner-controller-charts"
   chart      = "${var.prefix}-runner-${var.cloud_provider}-scale-set"
   depends_on = [helm_release.arc_controller, kubernetes_secret.github_app_secret]
