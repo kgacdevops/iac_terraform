@@ -25,7 +25,7 @@ resource "azurerm_kubernetes_cluster" "arc_cluster" {
   api_server_access_profile {
     virtual_network_integration_enabled = true
     subnet_id                           = var.api_server_subnet_id
-    authorized_ip_ranges = [ var.runner_ip ]
+    authorized_ip_ranges                = [ var.runner_ip ]
   }
 
   default_node_pool {
