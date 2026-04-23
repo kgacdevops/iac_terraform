@@ -49,7 +49,7 @@ resource "helm_release" "arc_runners" {
   name       = "${var.prefix}-runner-${var.cloud_provider}"
   namespace  = kubernetes_namespace_v1.arc_namespace.metadata[0].name
   repository = "oci://ghcr.io/actions/actions-runner-controller-charts"
-  chart      = "${var.prefix}-runner-${var.cloud_provider}-scale-set"
+  chart      = "runner-scale-set"
   depends_on = [helm_release.arc_controller, kubernetes_secret_v1.github_app_secret]
 
   values = [
