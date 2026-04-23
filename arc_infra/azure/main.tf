@@ -25,7 +25,6 @@ module "kube_cluster" {
     nodes_subnet_id       = module.network.nodes_subnet_id
     service_cidr          = var.service_cidr
     dns_service_ip        = var.dns_service_ip
-    runner_ip             = var.runner_ip
     depends_on            = [ module.network ]
 }
 

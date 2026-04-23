@@ -10,5 +10,4 @@ variable "dns_service_ip" {}
 variable "gh_app_id" {}
 variable "gh_app_installation_id" {}
 variable "github_owner" {}
-variable "runner_ip" {}
 variable "cloud_provider" {}

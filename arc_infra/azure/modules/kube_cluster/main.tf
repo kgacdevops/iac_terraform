@@ -20,12 +20,11 @@ resource "azurerm_kubernetes_cluster" "arc_cluster" {
   location                      = var.location
   resource_group_name           = var.rg_name
   dns_prefix                    = "${var.prefix}-dns"
-  private_cluster_enabled       = false
+  private_cluster_enabled       = true
 
   api_server_access_profile {
     virtual_network_integration_enabled = true
     subnet_id                           = var.api_server_subnet_id
-    authorized_ip_ranges                = [ var.runner_ip ]
   }
 
   default_node_pool {
