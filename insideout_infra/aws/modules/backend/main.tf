@@ -1,4 +1,4 @@
-# Lambda Function #
+# IAM Roles/Policies #
 
 resource "aws_iam_policy" "backend_policy" {
   name        = "${var.prefix}-backend-policy"
@@ -41,13 +41,24 @@ resource "aws_iam_role_policy_attachment" "backend_policy_attachment" {
   policy_arn = aws_iam_policy.backend_policy.arn
 }
 
+# Lambda Functions #
+
 resource "aws_lambda_function" "backend_api" {
   function_name    = "${var.prefix}-backend-api"
   role             = aws_iam_role.lambda_role.arn
-  filename         = "${path.module}/${var.package_build_path}"
-  source_code_hash = filebase64sha256("${path.module}/${var.package_build_path}")
+  filename         = "${path.module}/${var.backend_pkg_path}"
+  source_code_hash = filebase64sha256("${path.module}/${var.backend_pkg_path}")
   runtime          = var.lambda_py_version
-  handler          = var.lambda_handler
+  handler          = var.backend_lambda_handler
+}
+
+resource "aws_lambda_function" "loaddb_items" {
+  function_name    = "${var.prefix}-load-db-items"
+  role             = aws_iam_role.lambda_role.arn
+  filename         = "${path.module}/${var.loaddb_pkg_path}"
+  source_code_hash = filebase64sha256("${path.module}/${var.loaddb_pkg_path}")
+  runtime          = var.lambda_py_version
+  handler          = var.loaddb_lambda_handler
 }
 
 # API Gateway #
