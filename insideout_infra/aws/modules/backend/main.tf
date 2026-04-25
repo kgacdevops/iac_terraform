@@ -50,6 +50,11 @@ resource "aws_lambda_function" "backend_api" {
   source_code_hash = filebase64sha256("${path.module}/${var.backend_pkg_path}")
   runtime          = var.lambda_py_version
   handler          = var.backend_lambda_handler
+  environment {
+    variables = {
+        VERSES_DB  = "${var.prefix}-verses-db"
+    } 
+  }
 }
 
 resource "aws_lambda_function" "loaddb_items" {
@@ -59,6 +64,11 @@ resource "aws_lambda_function" "loaddb_items" {
   source_code_hash = filebase64sha256("${path.module}/${var.loaddb_pkg_path}")
   runtime          = var.lambda_py_version
   handler          = var.loaddb_lambda_handler
+  environment {
+    variables = {
+        VERSES_DB  = "${var.prefix}-verses-db"
+    } 
+  }
 }
 
 # API Gateway #
