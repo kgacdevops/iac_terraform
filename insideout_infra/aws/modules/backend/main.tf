@@ -47,54 +47,115 @@ resource "aws_lambda_function" "backend_api" {
   filename         = "${path.module}/${var.package_build_path}"
   source_code_hash = filebase64sha256("${path.module}/${var.package_build_path}")
   runtime          = var.lambda_py_version
-  handler          = "lambda_handler"
+  handler          = var.lambda_handler
 }
 
 # API Gateway #
 
-resource "aws_apigatewayv2_api" "backend_apigw" {
-  name          = "${var.prefix}-backend-api"
-  protocol_type = "HTTP"
+resource "aws_api_gateway_rest_api" "backend_apigw" {
+  name = "${var.prefix}-backend-api"
+}
 
-  cors_configuration {
-    allow_headers = ["Content-Type", "Authorization"]
-    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_origins = ["*"]
-    max_age       = 300
+resource "aws_api_gateway_resource" "backend_apigw_resource" {
+  rest_api_id = aws_api_gateway_rest_api.backend_apigw.id
+  parent_id   = aws_api_gateway_rest_api.backend_apigw.root_resource_id
+  path_part   = "{proxy+}"
+}
+
+resource "aws_api_gateway_method" "backend_apigw_any" {
+  rest_api_id   = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id   = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method   = "ANY"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "backend_apigw_method_options" {
+  rest_api_id   = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id   = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "backend_apigw_integration_options" {
+  rest_api_id = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method = aws_api_gateway_method.backend_apigw_method_options.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
   }
 }
 
-resource "aws_apigatewayv2_stage" "backend_apigw_stage" {
-  api_id      = aws_apigatewayv2_api.backend_apigw.id
-  name        = "$default"
-  auto_deploy = true
+resource "aws_api_gateway_method_response" "backend_apigw_method_response_options" {
+  rest_api_id = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method = aws_api_gateway_method.backend_apigw_method_options.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "backend_apigw_integration_response_options" {
+  rest_api_id = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method = aws_api_gateway_method.backend_apigw_method_options.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
 }
 
 # Lambda Integration #
 
-resource "aws_apigatewayv2_integration" "backend_api_lambda_integration" {
-  api_id                 = aws_apigatewayv2_api.backend_apigw.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.backend_api.invoke_arn
-  payload_format_version = "2.0"
+resource "aws_api_gateway_integration" "backend_apigw_lambda_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.backend_apigw.id
+  resource_id             = aws_api_gateway_resource.backend_apigw_resource.id
+  http_method             = aws_api_gateway_method.backend_apigw_any.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.backend_api.invoke_arn
 }
 
-# Default Route #
+# APIGW Deployment #
 
-resource "aws_apigatewayv2_route" "backend_apigw_route" {
-  api_id    = aws_apigatewayv2_api.backend_apigw.id
-  route_key = "$default"
-  target    = "integrations/${aws_apigatewayv2_integration.backend_api_lambda_integration.id}"
+resource "aws_api_gateway_deployment" "backend_apigw_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.backend_apigw.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.backend_apigw_resource,
+      aws_api_gateway_method.backend_apigw_any,
+      aws_api_gateway_integration.backend_apigw_lambda_integration,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "backend_apigw_stage" {
+  rest_api_id   = aws_api_gateway_rest_api.backend_apigw.id
+  deployment_id = aws_api_gateway_deployment.backend_apigw_deployment.id
+  stage_name    = "api"
 }
 
 # Lambda Permission #
 
-resource "aws_lambda_permission" "backend_api_permission" {
+resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.backend_api.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.backend_apigw.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.backend_apigw.execution_arn}/*/*"
 }
 
 # Dynamo DB #
