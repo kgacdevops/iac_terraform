@@ -12,3 +12,8 @@ module "backend" {
     loaddb_pkg_path             = var.loaddb_pkg_path
     loaddb_lambda_handler       = var.loaddb_lambda_handler
 }
+
+resource "local_file" "api_endpoint" {
+  filename = "${path.module}/backend_api_endpoint.txt"
+  content  = module.backend.backend_api_endpoint
+}
