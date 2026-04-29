@@ -1,6 +1,6 @@
 aws_region                  = "{REGION}"
 site_bucket_name            = "{BUCKET_NAME}"
-prefix                      = "insideout"
+prefix                      = "{PREFIX}"
 backend_pkg_path            = "backend_api.zip"
 lambda_py_version           = "{LAMBDA_PY_VERSION}"
 backend_lambda_handler      = "query_verse.lambda_handler"
